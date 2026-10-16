@@ -107,7 +107,7 @@
       <button class="btn active" id="startMatchBtn" style="display:none;">▶️ BẮT ĐẦU TRẬN</button>
     </div>
     <div id="netStatus"></div>
-    <div class="hint">IP của bạn (dùng làm ID): <span id="myIP" style="color:#66ddff;">đang lấy...</span></div>
+    <div class="hint">IP của bạn: <span id="myIP" style="color:#66ddff;">đang lấy...</span></div>
   </div>
 
   <div class="section">
@@ -470,8 +470,8 @@ const WEAPONS = [
   {
     id:'sniper', name:'SNIPER RIFLE', shortName:'SNIPER',
     type:'single', damage:110, headMulti:2.5,
-    fireRate:0.8, magSize:1, reloadTime:2.6,    // ← MAG = 1
-    spread:0.0015, recoil:2.2, range:250,        // ← RECOIL CAO HƠN
+    fireRate:0.8, magSize:1, reloadTime:2.6,
+    spread:0.0015, recoil:2.2, range:250,
     tracerColor:0x66ddff, audioType:'sniper',
     zoomFov:18, scope:true, color:'#66ddff', scopeZoom:'6'
   },
@@ -516,20 +516,16 @@ const mSleeve = new THREE.MeshStandardMaterial({ color: 0x3a4a5a, roughness: 0.7
 
 function buildLeftHand(){
   const g = new THREE.Group();
-  // Sleeve (forearm)
   const arm = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.11, 0.32), mSleeve);
   arm.position.set(0, 0, 0.16); g.add(arm);
-  // Hand palm
   const hand = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.08, 0.15), mSkin);
   hand.position.set(0, 0, -0.04); g.add(hand);
-  // Fingers (curled)
   for (let i = 0; i < 4; i++){
     const f = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.06, 0.09), mSkin);
     f.position.set(-0.045 + i * 0.03, 0.005, -0.13);
     f.rotation.x = 0.5;
     g.add(f);
   }
-  // Thumb
   const thumb = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.045, 0.075), mSkin);
   thumb.position.set(0.06, 0.015, -0.07);
   thumb.rotation.z = -0.4; g.add(thumb);
@@ -627,7 +623,6 @@ function showWeapon(idx){
   weaponModels[WEAPONS[idx].id].visible = true;
 }
 
-// Left hand for reload
 const leftHand = buildLeftHand();
 leftHand.visible = false;
 gunScene.add(leftHand);
@@ -645,7 +640,7 @@ const player = {
   pos: new THREE.Vector3(0, 1.7, 28),
   vel: new THREE.Vector3(),
   yaw: 0, pitch: 0,
-  hp: 200, maxHp: 200,                        // ← 200 HP
+  hp: 200, maxHp: 200,
   radius: 0.35,
   onGround: true,
   bob: 0, walkPhase: 0,
@@ -656,7 +651,6 @@ const player = {
 };
 const MAX_MEDKITS = 3;
 
-// Helper: change yaw/pitch & sync gyro base
 function changeYaw(delta){
   player.yaw += delta;
   if (Gyro.enabled && Gyro.base) Gyro.base.yaw += delta;
@@ -725,7 +719,6 @@ function createEnemyMesh(variant, isRemotePlayer, heldWeaponId){
   mk(armR, new THREE.BoxGeometry(0.12, 0.12, 0.12), mSkinE, 0, -0.85, 0);
   armR.position.set(0.4, 1.4, 0); g.add(armR);
 
-  // Gun in hands — shape depends on heldWeaponId
   const eGun = new THREE.Group();
   const wid = heldWeaponId || 'rifle';
   if (wid === 'sniper'){
@@ -808,14 +801,12 @@ function spawnAmmoPickup(x, z){
   const g = new THREE.Group();
   const box = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.35, 0.4), matAmmo);
   g.add(box);
-  // Bullet icons on top
   for (let i = -1; i <= 1; i++){
     const b = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 6), matAmmoAccent);
     b.rotation.z = Math.PI/2;
     b.position.set(i * 0.12, 0.22, 0);
     g.add(b);
   }
-  // Rim highlight
   const rim = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.04, 0.43), matAmmoAccent);
   rim.position.y = 0.18; g.add(rim);
 
@@ -832,12 +823,10 @@ function spawnMedPickup(x, z){
   const g = new THREE.Group();
   const box = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.4), matMed);
   g.add(box);
-  // White cross
   const c1 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.09, 0.02), matMedCross);
   c1.position.y = 0.18; g.add(c1);
   const c2 = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.32, 0.02), matMedCross);
   c2.position.y = 0.18; g.add(c2);
-  // Rim
   const rim = new THREE.Mesh(new THREE.BoxGeometry(0.53, 0.04, 0.43), matMedCross);
   rim.position.y = 0.18; g.add(rim);
 
@@ -851,11 +840,9 @@ function spawnMedPickup(x, z){
 }
 
 function spawnAllPickups(){
-  // Clear existing
   for (const p of pickups) scene.remove(p.mesh);
   pickups.length = 0;
 
-  // Ammo pickups (12)
   const ammoPositions = [
     [-10, 10], [10, -10], [-20, 0], [20, 0],
     [0, -20], [0, 20], [-30, -15], [30, 15],
@@ -867,7 +854,6 @@ function spawnAllPickups(){
     else spawnAmmoPickup(x + 2, z + 2);
   }
 
-  // Med pickups (6)
   const medPositions = [
     [-18, 18], [18, -18], [-28, -5], [28, 5],
     [-5, -28], [5, 28]
@@ -882,16 +868,13 @@ function updatePickups(dt){
   for (let i = pickups.length - 1; i >= 0; i--){
     const p = pickups[i];
     if (!p.alive) continue;
-    // Bob
     p.bobPhase += dt * 2;
     p.mesh.position.y = 0.5 + Math.sin(p.bobPhase) * 0.08;
     p.mesh.rotation.y += dt * 1.2;
 
-    // Pickup distance
     const d = Math.hypot(player.pos.x - p.pos.x, player.pos.z - p.pos.z);
     if (d < 1.6){
       if (p.type === 'ammo'){
-        // Add ammo to all weapons reserve
         for (let w = 0; w < WEAPONS.length; w++){
           if (WEAPONS[w].magSize === Infinity) continue;
           weaponState[w].reserve += Math.ceil(WEAPONS[w].magSize / 2);
@@ -901,7 +884,7 @@ function updatePickups(dt){
       } else if (p.type === 'med'){
         if (player.medkits >= MAX_MEDKITS){
           showPickupToast('TÚI CỨU THƯƠNG ĐÃ ĐẦY', '#ff6666');
-          continue; // don't pick up
+          continue;
         }
         player.medkits++;
         showPickupToast('+1 MEDKIT (' + player.medkits + '/' + MAX_MEDKITS + ')', '#ff3355');
@@ -920,8 +903,19 @@ function showPickupToast(text, color){
 }
 
 // ============================================================
-//  🌐 NETWORK
+//  🌐 NETWORK  ←←← PHẦN ĐÃ SỬA CHÍNH
 // ============================================================
+const ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:global.stun.twilio.com:3478' },
+  { urls: 'turn:openrelay.metered.ca:80',
+    username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443',
+    username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+    username: 'openrelayproject', credential: 'openrelayproject' }
+];
+
 const Net = {
   peer: null,
   conns: [],
@@ -941,15 +935,17 @@ const Net = {
       const r = await fetch('https://api.ipify.org?format=json');
       const data = await r.json();
       this.myIP = data.ip;
-      this.myId = data.ip.replace(/\./g, ''); // use IP as account ID
-      document.getElementById('myIP').textContent = this.myIP;
-      console.log('My IP:', this.myIP);
+      // ✅ FIX CHÍNH: thêm random tag để 2 máy cùng WiFi có ID khác nhau
+      const tag = Math.random().toString(36).substr(2, 6).toUpperCase();
+      this.myId = 'P_' + data.ip.replace(/\./g, '') + '_' + tag;
+      document.getElementById('myIP').textContent = this.myIP + ' (' + this.myId + ')';
+      console.log('✅ My ID:', this.myId, '| IP:', this.myIP);
       return true;
     } catch(e){
       console.warn('Could not fetch IP', e);
-      // Fallback
-      if (!this.myId) this.myId = 'local_' + Math.random().toString(36).substr(2, 8);
-      document.getElementById('myIP').textContent = 'Ẩn (dùng ID: ' + this.myId + ')';
+      if (!this.myId) this.myId = 'local_' + Math.random().toString(36).substr(2, 8).toUpperCase();
+      document.getElementById('myIP').textContent = 'Ẩn (ID: ' + this.myId + ')';
+      console.log('✅ Fallback ID:', this.myId);
       return false;
     }
   },
@@ -1010,15 +1006,11 @@ const Net = {
     this.updateRoomDisplay();
 
     const peerId = 'fps_arena_v6_' + code;
+    console.log('🏠 Hosting with peerId:', peerId);
     try {
       this.peer = new Peer(peerId, {
         debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:global.stun.twilio.com:3478' }
-          ]
-        }
+        config: { iceServers: ICE_SERVERS }
       });
     } catch(e){
       this.updateStatus('❌ Lỗi tạo peer: ' + e.message);
@@ -1026,24 +1018,25 @@ const Net = {
     }
 
     this.peer.on('open', (id) => {
+      console.log('✅ Host peer open:', id);
       this.updateStatus('✅ PHÒNG: ' + code + ' — Chờ bạn bè vào...');
     });
 
     this.peer.on('connection', conn => {
-      console.log('New connection');
+      console.log('👥 New connection from:', conn.peer);
       this.conns.push(conn);
       conn.on('open', () => {
+        console.log('✅ Conn open with:', conn.peer);
         this.updateStatus('✅ PHÒNG: ' + code + ' — ' + (this.conns.length + 1) + ' người chơi');
         conn.send({ type:'welcome', id:this.myId, name:this.myName, ip:this.myIP });
-        // Send our current state
         conn.send({ type:'state', id:this.myId, name:this.myName, ip:this.myIP,
           pos: player.pos.toArray(), yaw: player.yaw, pitch: player.pitch, hp: player.hp,
           weapon: WEAPONS[currentWeaponIdx].id });
-        // Show start button
         document.getElementById('startMatchBtn').style.display = 'inline-block';
       });
       conn.on('data', data => this.handleData(data, conn));
       conn.on('close', () => {
+        console.log('❌ Conn closed:', conn.peer);
         const i = this.conns.indexOf(conn);
         if (i >= 0) this.conns.splice(i, 1);
         this.updateStatus('✅ PHÒNG: ' + code + ' — ' + (this.conns.length + 1) + ' người chơi');
@@ -1051,9 +1044,11 @@ const Net = {
           document.getElementById('startMatchBtn').style.display = 'none';
         }
       });
+      conn.on('error', err => console.warn('Conn error:', err));
     });
 
     this.peer.on('error', err => {
+      console.error('Peer error:', err);
       this.updateStatus('❌ Lỗi: ' + err.message + ' (thử tạo lại)');
     });
   },
@@ -1072,19 +1067,15 @@ const Net = {
     try {
       this.peer = new Peer(null, {
         debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:global.stun.twilio.com:3478' }
-          ]
-        }
+        config: { iceServers: ICE_SERVERS }
       });
     } catch(e){
       this.updateStatus('❌ Lỗi: ' + e.message);
       return;
     }
 
-    this.peer.on('open', () => {
+    this.peer.on('open', (id) => {
+      console.log('✅ Client peer open:', id, '→ connecting to fps_arena_v6_' + code);
       const conn = this.peer.connect('fps_arena_v6_' + code, { reliable: true });
       this.hostConn = conn;
 
@@ -1092,10 +1083,11 @@ const Net = {
         if (!this.connected){
           this.updateStatus('❌ Không tìm thấy phòng ' + code + '. Kiểm tra lại mã!');
         }
-      }, 8000);
+      }, 12000);
 
       conn.on('open', () => {
         clearTimeout(timeout);
+        console.log('✅ Connected to host!');
         this.connected = true;
         this.updateStatus('✅ ĐÃ VÀO PHÒNG ' + code + ' — chờ host bắt đầu');
         conn.send({ type:'join', id:this.myId, name:this.myName, ip:this.myIP });
@@ -1106,13 +1098,16 @@ const Net = {
 
       conn.on('data', data => this.handleData(data, conn));
       conn.on('close', () => {
+        console.log('❌ Host connection closed');
         this.connected = false;
         this.updateStatus('❌ Mất kết nối với host');
         this.clearAllRemotes();
       });
+      conn.on('error', err => console.error('Conn error:', err));
     });
 
     this.peer.on('error', err => {
+      console.error('Peer error:', err);
       this.updateStatus('❌ Lỗi: ' + err.message);
     });
   },
@@ -1149,7 +1144,6 @@ const Net = {
       }
     }
     else if (data.type === 'start-match'){
-      // Host started the match
       this.matchStarted = true;
       if (!G.running){
         resetGame();
@@ -1190,11 +1184,17 @@ const Net = {
     this.updateStatus('▶️ TRẬN ĐẤU BẮT ĐẦU!');
   },
 
+  // ✅ SỬA: định vị mesh NGAY LẬP TỨC khi tạo, y=0 để không bay lên trời
   upsertRemote(data){
     let rp = this.remotePlayers[data.id];
     const wid = data.weapon || 'rifle';
     if (!rp){
       const mesh = createEnemyMesh(0, true, wid);
+      // Định vị ngay tại vị trí nhận được (nếu có), đặt y=0
+      if (data.pos){
+        mesh.group.position.set(data.pos[0], 0, data.pos[2]);
+        mesh.group.rotation.y = data.yaw || 0;
+      }
       scene.add(mesh.group);
       rp = {
         id: data.id, name: data.name || 'Player', ip: data.ip || '?',
@@ -1202,11 +1202,16 @@ const Net = {
         yaw: 0, targetYaw: 0, pitch: 0, targetPitch: 0,
         hp: 100, mesh, walkPhase: 0, weapon: wid
       };
-      if (data.pos) {
+      if (data.pos){
         rp.pos.set(data.pos[0], data.pos[1], data.pos[2]);
         rp.targetPos.copy(rp.pos);
+        rp.yaw = data.yaw || 0;
+        rp.targetYaw = rp.yaw;
+        rp.pitch = data.pitch || 0;
+        rp.targetPitch = rp.pitch;
       }
       this.remotePlayers[data.id] = rp;
+      console.log('👥 Remote player joined:', rp.name, rp.id);
       this.updateStatus('👥 Đang chơi với ' + Object.keys(this.remotePlayers).length + ' người khác');
     }
     if (data.pos){
@@ -1217,10 +1222,9 @@ const Net = {
     if (data.hp !== undefined) rp.hp = data.hp;
     if (data.name) rp.name = data.name;
     if (data.weapon && data.weapon !== rp.weapon){
-      // Swap weapon model
       scene.remove(rp.mesh.group);
       const newMesh = createEnemyMesh(0, true, data.weapon);
-      newMesh.group.position.copy(rp.pos);
+      newMesh.group.position.set(rp.pos.x, 0, rp.pos.z);
       newMesh.group.rotation.y = rp.yaw;
       scene.add(newMesh.group);
       rp.mesh = newMesh;
@@ -1236,9 +1240,9 @@ const Net = {
     }
   },
 
+  // ✅ SỬA: bỏ check matchStarted → lobby vẫn sync vị trí
   sendState(){
     if (!this.connected && !this.isHost) return;
-    if (!this.matchStarted) return;
     const now = performance.now();
     if (now - this.lastSend < 50) return;
     this.lastSend = now;
@@ -1292,16 +1296,17 @@ function lerpAngle(a, b, t){
   return a + d * t;
 }
 
+// ✅ SỬA: mesh đặt y=0 thay vì copy y=1.7
 function updateRemotePlayers(dt){
   for (const id in Net.remotePlayers){
     const rp = Net.remotePlayers[id];
     rp.pos.lerp(rp.targetPos, Math.min(1, dt * 12));
     rp.yaw = lerpAngle(rp.yaw, rp.targetYaw, Math.min(1, dt * 14));
     rp.pitch += (rp.targetPitch - rp.pitch) * Math.min(1, dt * 10);
-    rp.mesh.group.position.copy(rp.pos);
+    rp.mesh.group.position.set(rp.pos.x, 0, rp.pos.z);
     rp.mesh.group.rotation.y = rp.yaw;
     rp.mesh.armR.rotation.x = -rp.pitch * 0.5;
-    const moving = rp.pos.distanceTo(rp.targetPos) > 0.03;
+    const moving = rp.pos.distanceTo(rp.targetPos) > 0.05;
     if (moving){
       rp.walkPhase += dt * 8;
       const lp = Math.sin(rp.walkPhase) * 0.5;
@@ -1329,7 +1334,7 @@ const G = {
 };
 
 // ============================================================
-//  🌀 GYRO — FIX cho landscape
+//  🌀 GYRO
 // ============================================================
 const Gyro = {
   enabled: false,
@@ -1397,26 +1402,18 @@ const Gyro = {
     const gamma = e.gamma || 0;
 
     const orient = this.getOrientAngle();
-
-    // Remap axes based on screen orientation
-    // For landscape mode, alpha becomes unstable as phone is tilted through 90°
-    // so we use gamma for yaw and beta for pitch
     let yawVal, pitchVal;
 
     if (orient === 90){
-      // Landscape, home button on right (top of phone → left of screen)
       yawVal = gamma;
       pitchVal = beta;
     } else if (orient === 270){
-      // Landscape, home button on left (top of phone → right of screen)
       yawVal = -gamma;
       pitchVal = beta;
     } else if (orient === 180){
-      // Portrait upside-down
       yawVal = alpha;
       pitchVal = -beta;
     } else {
-      // Portrait normal
       yawVal = alpha;
       pitchVal = beta;
     }
@@ -1429,7 +1426,6 @@ const Gyro = {
     let dYaw = yawVal - this.base.yawVal;
     let dPitch = pitchVal - this.base.pitchVal;
 
-    // Handle wraparound for alpha
     if (dYaw > 180) dYaw -= 360;
     if (dYaw < -180) dYaw += 360;
     if (dPitch > 180) dPitch -= 360;
@@ -1439,7 +1435,6 @@ const Gyro = {
     const invX = settings.gyroInvertX ? -1 : 1;
     const invY = settings.gyroInvertY ? -1 : 1;
 
-    // Camera yaw decreases when phone rotates right (look right)
     player.yaw = this.base.yaw - dYaw * Math.PI / 180 * s * invX;
     player.pitch = this.base.pitch - dPitch * Math.PI / 180 * s * invY;
     player.pitch = Math.max(-1.5, Math.min(1.5, player.pitch));
@@ -1481,7 +1476,6 @@ try {
   if (saved){
     const s = JSON.parse(saved);
     settings = Object.assign({}, defaults, s);
-    // merge buttons
     const mergedBtns = {};
     for (const k in DEFAULTS_BUTTONS){
       mergedBtns[k] = Object.assign({}, DEFAULTS_BUTTONS[k], (s.buttons && s.buttons[k]) || {});
@@ -1658,7 +1652,6 @@ function onTouchMove(e){
       lookTouch.lx = t.clientX;
       lookTouch.ly = t.clientY;
       const s = settings.sensitivity * (isScoped ? 0.002 * settings.zoomSensitivity : 0.0055);
-      // Use changeYaw/changePitch so gyro base syncs
       changeYaw(-dx * s);
       changePitch(-dy * s);
     }
@@ -1713,7 +1706,6 @@ document.getElementById('resetBtnsBtn').addEventListener('click', () => {
   saveSettings();
 });
 
-// Button opacity/size UI
 const btnSelect = document.getElementById('btnSelect');
 const btnOpacitySlider = document.getElementById('btnOpacitySlider');
 const btnOpacityVal = document.getElementById('btnOpacityVal');
@@ -1814,7 +1806,6 @@ document.getElementById('joinBtn').addEventListener('click', () => {
 document.getElementById('leaveNetBtn').addEventListener('click', () => Net.leave());
 document.getElementById('startMatchBtn').addEventListener('click', () => {
   Net.startMatch();
-  // Auto-close settings and start game
   settingsOpen = false;
   document.getElementById('settingsPanel').style.display = 'none';
 });
@@ -1955,10 +1946,8 @@ function tryFire(){
 
   if (w.type === 'melee') G.recoil = 1.5;
 
-  // ═══ SNIPER: after every shot → force unscope + auto reload ═══
   if (w.id === 'sniper'){
     if (isScoped) isScoped = false;
-    // Force reload after short delay (so player sees the shot)
     setTimeout(() => {
       if (currentWeaponIdx === 1 && !currentWeaponState().isReloading){
         reloadWeapon();
@@ -2086,7 +2075,7 @@ function updatePlayer(dt){
   let speed = MOVE_SPEED;
   if (!isScoped && my < -0.5 && currentWeapon().id !== 'sniper') speed *= SPRINT_MULT;
   if (isScoped) speed *= 0.4;
-  if (player.healing) speed *= 0.35;   // Slow while healing
+  if (player.healing) speed *= 0.35;
 
   const tVX = wishX * speed, tVZ = wishZ * speed;
   const accel = 18;
@@ -2128,7 +2117,6 @@ function updatePlayer(dt){
   player.lean += (player.leanTarget - player.lean) * Math.min(1, dt * 12);
   if (player.damageDirT > 0) player.damageDirT -= dt;
 
-  // Healing update
   if (player.healing){
     player.healTimer -= dt;
     const rate = player.healAmount / player.healDuration;
@@ -2226,7 +2214,6 @@ function updateEnemies(dt){
     e.mesh.group.position.set(e.pos.x, 0, e.pos.z);
   }
 
-  // Only spawn AI when not online
   const online = Net.connected || Net.isHost;
   if (!online && G.running){
     G.spawnTimer -= dt;
@@ -2276,7 +2263,6 @@ function damagePlayer(amount, fromPos){
   G.shake = Math.max(G.shake, 0.3);
   Sound.hurt();
   if (navigator.vibrate) navigator.vibrate(35);
-  // Cancel healing on damage
   if (player.healing){ player.healing = false; player.healTimer = 0; }
 
   if (fromPos){
@@ -2310,7 +2296,7 @@ function resetGame(){
   player.hp = player.maxHp;
   player.lean = 0; player.leanTarget = 0;
   player.damageDirT = 0;
-  player.medkits = 1;                 // Start with 1 medkit
+  player.medkits = 1;
   player.healing = false; player.healTimer = 0;
 
   G.score = 0; G.kills = 0; G.headshots = 0; G.time = 0;
@@ -2337,10 +2323,8 @@ function resetGame(){
 
   Gyro.base = null;
 
-  // Spawn pickups
   spawnAllPickups();
 
-  // Spawn AI only in solo
   if (!Net.connected && !Net.isHost){
     for (let i = 0; i < 3; i++) spawnEnemy();
   }
@@ -2423,10 +2407,10 @@ window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 300));
 
 // ============================================================
-//  🗺️ MINIMAP — NHỎ HƠN
+//  🗺️ MINIMAP
 // ============================================================
 let minimapBg = null;
-const minimapSize = 90;   // ← Nhỏ hơn (was 130)
+const minimapSize = 90;
 
 function renderMinimapBg(){
   const size = minimapSize;
@@ -2443,7 +2427,6 @@ function renderMinimapBg(){
   c.fillStyle = 'rgba(15,25,40,0.8)';
   c.fillRect(0, 0, size, size);
 
-  // Grid
   c.strokeStyle = 'rgba(80,120,160,0.2)';
   c.lineWidth = 0.5;
   for (let i = -4; i <= 4; i++){
@@ -2452,7 +2435,6 @@ function renderMinimapBg(){
     const q = cy + i * 10 * scale;
     c.beginPath(); c.moveTo(0, q); c.lineTo(size, q); c.stroke();
   }
-  // Colliders
   c.fillStyle = 'rgba(120,160,200,0.55)';
   for (const col of colliders){
     const mx = cx + col.x * scale;
@@ -2481,7 +2463,6 @@ function drawMinimap(){
 
   ctx2d.drawImage(minimapBg, x0, y0, size, size);
 
-  // Pickups (small dots)
   for (const p of pickups){
     const px = cx + p.pos.x * scale;
     const py = cy + p.pos.z * scale;
@@ -2489,7 +2470,6 @@ function drawMinimap(){
     ctx2d.beginPath(); ctx2d.arc(px, py, 1.5, 0, Math.PI*2); ctx2d.fill();
   }
 
-  // Enemies (red)
   ctx2d.fillStyle = '#ff3333';
   for (const e of enemies){
     const ex = cx + e.pos.x * scale;
@@ -2497,7 +2477,6 @@ function drawMinimap(){
     ctx2d.beginPath(); ctx2d.arc(ex, ey, 2.2, 0, Math.PI*2); ctx2d.fill();
   }
 
-  // Remote players (cyan)
   ctx2d.fillStyle = '#33ddff';
   for (const id in Net.remotePlayers){
     const rp = Net.remotePlayers[id];
@@ -2506,7 +2485,6 @@ function drawMinimap(){
     ctx2d.beginPath(); ctx2d.arc(rx, ry, 3, 0, Math.PI*2); ctx2d.fill();
   }
 
-  // Player arrow
   const px = cx + player.pos.x * scale;
   const py = cy + player.pos.z * scale;
   ctx2d.save();
@@ -2520,12 +2498,10 @@ function drawMinimap(){
 
   ctx2d.restore();
 
-  // Border
   ctx2d.strokeStyle = 'rgba(102,221,255,0.65)';
   ctx2d.lineWidth = 1.5;
   roundRect(ctx2d, x0, y0, size, size, 6); ctx2d.stroke();
 
-  // N indicator
   ctx2d.fillStyle = '#ffcc44';
   ctx2d.font = 'bold 8px monospace';
   ctx2d.textAlign = 'center'; ctx2d.textBaseline = 'top';
@@ -2604,7 +2580,6 @@ function drawHUD(){
     ctx2d.restore();
   }
 
-  // Net indicator
   if (Net.connected || Net.isHost){
     ctx2d.save();
     ctx2d.font = '700 10px monospace';
@@ -2965,7 +2940,6 @@ function drawWeaponInfo(){
   ctx2d.font = '700 11px -apple-system, sans-serif';
   ctx2d.fillStyle = 'rgba(255,255,255,0.7)';
   ctx2d.fillText(w.name, x, y + 18);
-  // Medkit count
   ctx2d.font = '800 13px monospace';
   ctx2d.fillStyle = '#ff3355';
   ctx2d.shadowColor = '#000'; ctx2d.shadowBlur = 4;
@@ -3010,7 +2984,7 @@ function drawWeaponSlots(){
 }
 
 // ============================================================
-//  📱 BUTTONS — Apply opacity & scale
+//  📱 BUTTONS
 // ============================================================
 function drawRoundBtnBase(x, y, r, color, opacity){
   opacity = opacity !== undefined ? opacity : 0.85;
@@ -3090,11 +3064,9 @@ function drawBtnIcon(type, x, y, r, opacity){
     ctx2d.closePath(); ctx2d.fill();
   }
   else if (type === 'heal'){
-    // Red cross
     ctx2d.fillStyle = '#fff';
     ctx2d.fillRect(x - r*0.15, y - r*0.55, r*0.3, r*1.1);
     ctx2d.fillRect(x - r*0.55, y - r*0.15, r*1.1, r*0.3);
-    // Small heart shape top-right
     ctx2d.beginPath();
     ctx2d.arc(x + r*0.45, y - r*0.4, r*0.12, 0, Math.PI*2);
     ctx2d.fill();
@@ -3303,8 +3275,6 @@ function loop(t){
     updateRemotePlayers(dt);
     updatePickups(dt);
 
-    Net.sendState();
-
     for (let i = G.tracers.length - 1; i >= 0; i--){
       const tr = G.tracers[i];
       tr.life -= dt;
@@ -3385,7 +3355,6 @@ function loop(t){
       gunRX -= p * 0.4;
     }
 
-    // ═══ RELOAD ANIMATION with LEFT HAND ═══
     if (s.isReloading && w.id !== 'knife'){
       const t = s.reloadAnim;
       const dip = Math.sin(t * Math.PI);
@@ -3401,31 +3370,17 @@ function loop(t){
         const magY0 = magBase.y, magYOut = -0.65;
         const rot0 = magBase.rot, rotOut = -1.3;
 
-        // Phase plan:
-        // 0.00-0.25: hand enters from bottom-left, moves to mag
-        // 0.25-0.45: hand pulls mag down (out)
-        // 0.45-0.55: hand+oldmag disappear off-screen bottom, new mag ready
-        // 0.55-0.75: hand+newmag enter from bottom-left
-        // 0.75-0.90: hand pushes new mag into position
-        // 0.90-1.00: hand exits bottom-right
-
         leftHand.visible = true;
 
         if (t < 0.25){
-          // Hand enters
           const k = t / 0.25;
           const eased = k * k;
-          leftHand.position.set(
-            -0.35 + 0.55 * eased,
-            -0.65 + 0.48 * eased,
-            -0.3 + 0.2 * eased
-          );
+          leftHand.position.set(-0.35 + 0.55 * eased, -0.65 + 0.48 * eased, -0.3 + 0.2 * eased);
           leftHand.rotation.set(0.5 - 0.4 * eased, 0.3, 0.4 - 0.3 * eased);
           mag.visible = true;
           mag.position.y = magY0;
           mag.rotation.x = rot0;
         } else if (t < 0.45){
-          // Hand pulls mag down
           const k = (t - 0.25) / 0.2;
           const eased = 1 - Math.pow(1-k, 2);
           leftHand.position.set(0.2, -0.17 - 0.55 * eased, -0.1);
@@ -3434,26 +3389,19 @@ function loop(t){
           mag.rotation.x = rot0 + (rotOut - rot0) * eased;
           mag.visible = true;
         } else if (t < 0.55){
-          // Hand+old mag disappears; new mag phase
           const k = (t - 0.45) / 0.1;
           leftHand.position.set(0.2, -0.72 - 0.5 * k, -0.1);
           leftHand.rotation.set(-0.4, 0.3, 0.1);
           mag.visible = false;
         } else if (t < 0.75){
-          // Hand+new mag enters from bottom-left
           const k = (t - 0.55) / 0.2;
           const eased = k * k;
-          leftHand.position.set(
-            -0.3 + 0.5 * eased,
-            -0.9 + 0.5 * eased,
-            -0.3 + 0.2 * eased
-          );
+          leftHand.position.set(-0.3 + 0.5 * eased, -0.9 + 0.5 * eased, -0.3 + 0.2 * eased);
           leftHand.rotation.set(0.4 - 0.3 * eased, 0.3, 0.3);
           mag.visible = true;
           mag.position.y = magYOut;
           mag.rotation.x = rotOut;
         } else if (t < 0.9){
-          // Hand pushes mag into position
           const k = (t - 0.75) / 0.15;
           const eased = 1 - Math.pow(1-k, 2);
           leftHand.position.set(0.2 - 0.05 * eased, -0.4 + 0.23 * eased, -0.1);
@@ -3462,7 +3410,6 @@ function loop(t){
           mag.rotation.x = rotOut + (rot0 - rotOut) * eased;
           mag.visible = true;
         } else {
-          // Hand exits
           const k = (t - 0.9) / 0.1;
           const eased = k * k;
           leftHand.position.set(0.15 + 0.3 * eased, -0.17 - 0.5 * eased, -0.1);
@@ -3520,6 +3467,9 @@ function loop(t){
     }
   }
 
+  // ✅ SỬA: gửi state liên tục kể cả khi chưa vào trận (lobby sync)
+  if (Net.connected || Net.isHost) Net.sendState();
+
   renderer.render(scene, camera);
   renderer.autoClear = false;
   renderer.clearDepth();
@@ -3538,10 +3488,8 @@ resize();
 showWeapon(0);
 requestAnimationFrame(loop);
 
-// Fetch IP on load
 Net.fetchIP();
 
-// Enable gyro on first user interaction
 document.addEventListener('click', function once(){
   if (settings.gyroOn && !Gyro.enabled){
     Gyro.request();
